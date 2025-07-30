@@ -18,7 +18,7 @@ PKG_ROOT_DIR := $(BUILD_DIR)/pkg-root
 PKG_COMPONENT := $(BUILD_DIR)/$(PROJECT_NAME)-component.pkg
 PKG_COMPONENT_ID := io.github.gitusp.azoo-key-skkserv.app
 PKG_COMPONENT_PLIST := $(BUILD_DIR)/$(PROJECT_NAME)-component.plist
-PKG_NAME := $(PROJECT_NAME).pkg
+PKG_NAME := $(PROJECT_NAME)-$(VERSION).pkg
 PKG_PATH := $(DIST_DIR)/$(PKG_NAME)
 EXPORT_OPTIONS_PLIST := $(BUILD_DIR)/ExportOptions.plist
 DISTRIBUTION_PLIST := $(BUILD_DIR)/Distribution.plist
@@ -70,7 +70,7 @@ $(DISTRIBUTION_PLIST):
 	@echo "Creating Distribution.plist..."
 	@echo '<?xml version="1.0" encoding="utf-8"?>' > $@
 	@echo '<installer-gui-script minSpecVersion="1">' >> $@
-	@echo '    <title>$(PROJECT_NAME)</title>' >> $@
+	@echo '    <title>$(PROJECT_NAME) $(VERSION)</title>' >> $@
 	@echo '    <options customize="never" require-scripts="false" hostArchitectures="x86_64,arm64"/>' >> $@
 	@echo '    <choices-outline>' >> $@
 	@echo '        <line choice="default" />' >> $@
