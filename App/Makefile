@@ -13,7 +13,8 @@ APPLE_APP_PASSWORD := $(APPLE_APP_PASSWORD)
 BUILD_DIR := build
 DIST_DIR := dist
 ARCHIVE_PATH := $(BUILD_DIR)/$(PROJECT_NAME).xcarchive
-APP_PATH := $(BUILD_DIR)/$(PROJECT_NAME).app
+APP_NAME := azooKey skkserv.app
+APP_PATH := $(BUILD_DIR)/$(APP_NAME)
 PKG_ROOT_DIR := $(BUILD_DIR)/pkg-root
 PKG_COMPONENT := $(BUILD_DIR)/$(PROJECT_NAME)-component.pkg
 PKG_COMPONENT_ID := io.github.gitusp.azoo-key-skkserv.app
@@ -62,7 +63,7 @@ $(ARCHIVE_PATH):
 
 # Export the application
 $(APP_PATH): $(ARCHIVE_PATH) $(EXPORT_OPTIONS_PLIST)
-	@echo "Exporting $(PROJECT_NAME).app..."
+	@echo "Exporting $(APP_NAME)..."
 	xcodebuild -exportArchive -archivePath $< -exportPath $(BUILD_DIR) -exportOptionsPlist $(EXPORT_OPTIONS_PLIST)
 
 # Create Distribution.plist for productbuild
@@ -96,7 +97,7 @@ $(PKG_COMPONENT_PLIST):
 	@echo '        <key>BundleOverwriteAction</key>' >> $@
 	@echo '        <string>upgrade</string>' >> $@
 	@echo '        <key>RootRelativeBundlePath</key>' >> $@
-	@echo '        <string>Applications/$(PROJECT_NAME).app</string>' >> $@
+	@echo '        <string>Applications/$(APP_NAME)</string>' >> $@
 	@echo '    </dict>' >> $@
 	@echo '</array>' >> $@
 	@echo '</plist>' >> $@
@@ -105,7 +106,7 @@ $(PKG_COMPONENT_PLIST):
 $(PKG_ROOT_DIR): $(APP_PATH)
 	@echo "Preparing PKG root directory..."
 	mkdir -p $@/Applications
-	cp -R $(APP_PATH) $@/Applications/
+	cp -R "$(APP_PATH)" $@/Applications/
 
 # Create component package with pkgbuild
 $(PKG_COMPONENT): $(PKG_ROOT_DIR) $(PKG_COMPONENT_PLIST)
