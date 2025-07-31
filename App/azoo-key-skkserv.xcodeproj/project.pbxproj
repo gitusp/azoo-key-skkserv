@@ -12,7 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE4023A42E2013BF0034FB8F /* azoo-key-skkserv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "azoo-key-skkserv.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE4023A42E2013BF0034FB8F /* azooKey skkserv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "azooKey skkserv.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -47,7 +47,7 @@
 		CE4023A52E2013BF0034FB8F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CE4023A42E2013BF0034FB8F /* azoo-key-skkserv.app */,
+				CE4023A42E2013BF0034FB8F /* azooKey skkserv.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,7 +76,7 @@
 				CEA2538F2E212F2500618E64 /* LoggingOSLog */,
 			);
 			productName = "azoo-key-skkserv";
-			productReference = CE4023A42E2013BF0034FB8F /* azoo-key-skkserv.app */;
+			productReference = CE4023A42E2013BF0034FB8F /* azooKey skkserv.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -264,7 +264,7 @@
 				CODE_SIGN_ENTITLEMENTS = "azoo-key-skkserv/azoo_key_skkserv.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -274,9 +274,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.gitusp.azoo-key-skkserv";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "azooKey skkserv";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
@@ -292,7 +292,7 @@
 				CODE_SIGN_ENTITLEMENTS = "azoo-key-skkserv/azoo_key_skkserv.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -302,9 +302,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "io.github.gitusp.azoo-key-skkserv";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "azooKey skkserv";
 				REGISTER_APP_GROUPS = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
