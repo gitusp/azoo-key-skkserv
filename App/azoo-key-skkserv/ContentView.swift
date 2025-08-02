@@ -64,7 +64,8 @@ struct ContentView: View {
         serverTask = Task {
             do {
                 if server == nil {
-                    server = SKKServer(version: "0.1.0", logger: logger)
+                    let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+                    server = SKKServer(version: version, logger: logger)
                     server?.prepare()
                 }
                 try await server!.run(host: host, port: port, incomingCharset: incomingCharset.stringEncoding)
