@@ -39,6 +39,11 @@ https://github.com/user-attachments/assets/614f87b9-062a-4710-92e2-f275eb80703f
 apt install libgomp1
 ```
 
+### GUIについて
+
+macOS版はGUIアプリケーションの提供もございます。([mtgto](https://github.com/mtgto)さんありがとうございます！)  
+[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)に `.pkg` ファイルも置いてあるので、そちらからインストールしてください。
+
 ## 使い方
 
 ```sh
