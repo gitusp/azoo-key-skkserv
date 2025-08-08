@@ -15,7 +15,7 @@ struct SKKServerVersionTest {
         await server.prepare()
 
         let serverTask = Task {
-            try await server.run(host: "127.0.0.1", port: port, incomingCharset: String.Encoding.utf8)
+            try await server.run(host: "127.0.0.1", port: port, incomingCharset: String.Encoding.utf8, inferenceLimit: 1)
         }
 
         // サーバーが起動するまで少し待つ

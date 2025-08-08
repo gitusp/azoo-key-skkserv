@@ -6,9 +6,35 @@ import NIOPosix
 import KanaKanjiConverterModuleWithDefaultDictionary
 import Logging
 
+private func createZenzaiMode(inferenceLimit: Int) -> ConvertRequestOptions.ZenzaiMode {
+    return .on(
+        weight: Bundle.module.url(forResource: "zenz-v1", withExtension: "gguf")!,
+        inferenceLimit: inferenceLimit,
+        personalizationMode: nil,
+        versionDependentMode: .v1
+    )
+}
+
+private func createConvertOption(inferenceLimit: Int, version: String) -> ConvertRequestOptions {
+    return ConvertRequestOptions.withDefaultDictionary(
+        // 日本語予測変換
+        requireJapanesePrediction: false,
+        // 英語予測変換
+        requireEnglishPrediction: false,
+        // 入力言語
+        keyboardLanguage: .ja_JP,
+        // 学習タイプ
+        learningType: .nothing,
+        // TODO: 扱いについて検討
+        memoryDirectoryURL: URL(fileURLWithPath: ""),
+        sharedContainerURL: URL(fileURLWithPath: ""),
+        zenzaiMode: createZenzaiMode(inferenceLimit: inferenceLimit),
+        metadata: .init(versionString: version)
+    )
+}
+
 @MainActor public struct SKKServer {
     let allocator = ByteBufferAllocator()
-    let convertOption: ConvertRequestOptions
     let converter: KanaKanjiConverter
     let version: String
     let logger: Logger
@@ -16,26 +42,7 @@ import Logging
     public init(version: String, logger: Logger) {
         self.version = version
         self.logger = logger
-        convertOption = ConvertRequestOptions.withDefaultDictionary(
-            // 日本語予測変換
-            requireJapanesePrediction: false,
-            // 英語予測変換
-            requireEnglishPrediction: false,
-            // 入力言語
-            keyboardLanguage: .ja_JP,
-            // 学習タイプ
-            learningType: .nothing,
-            // TODO: 扱いについて検討
-            memoryDirectoryURL: URL(fileURLWithPath: ""),
-            sharedContainerURL: URL(fileURLWithPath: ""),
-            zenzaiMode: .on(
-                weight: Bundle.module.url(forResource: "zenz-v1", withExtension: "gguf")!,
-                inferenceLimit: 1,
-                personalizationMode: nil,
-                versionDependentMode: .v1
-            ),
-            metadata: .init(versionString: version)
-        )
+        let convertOption = createConvertOption(inferenceLimit: 1, version: version)
         // コンバータ初期化
         converter = KanaKanjiConverter(dicdataStore: DicdataStore(convertRequestOptions: convertOption))
     }
@@ -44,6 +51,7 @@ import Logging
         // HACK: ダミーリクエストを送信してモデルを先読みしておく
         var dummyComposingText = ComposingText()
         dummyComposingText.insertAtCursorPosition("もでるさきよみ", inputStyle: .direct)
+        let convertOption = createConvertOption(inferenceLimit: 1, version: version)
         _ = converter.requestCandidates(dummyComposingText, options: convertOption)
     }
 
@@ -67,7 +75,9 @@ import Logging
       * task.cancel()
       * ```
       */
-    public func run(host: String = "127.0.0.1", port: Int = 1178, incomingCharset: String.Encoding = .utf8) async throws {
+    public func run(host: String = "127.0.0.1", port: Int = 1178, incomingCharset: String.Encoding = .utf8, inferenceLimit: Int = 1) async throws {
+        let convertOption = createConvertOption(inferenceLimit: inferenceLimit, version: version)
+        
         // こちらのガイドを参考に実装した。
         // https://swiftonserver.com/using-swiftnio-channels/
         let server = try await ServerBootstrap(group: NIOSingletons.posixEventLoopGroup)
@@ -92,14 +102,14 @@ import Logging
             try await server.executeThenClose { clients in
                 for try await client in clients {
                     group.addTask {
-                        await handleClient(client: client, host: host, port: port, incomingCharset: incomingCharset)
+                        await handleClient(client: client, host: host, port: port, incomingCharset: incomingCharset, convertOption: convertOption)
                     }
                 }
             }
         }
     }
 
-    func handleClient(client: NIOAsyncChannel<ByteBuffer, ByteBuffer>, host: String, port: Int, incomingCharset: String.Encoding) async {
+    func handleClient(client: NIOAsyncChannel<ByteBuffer, ByteBuffer>, host: String, port: Int, incomingCharset: String.Encoding, convertOption: ConvertRequestOptions) async {
         // クライアントが先にソケットを閉じている状態でソケットへの書き込みを行ったりすると例外が発生し、
         // そのあとの接続でinboundMessagesからメッセージが取得できなくなってしまう。
         // それを防ぐため例外をキャッチする必要がある。

@@ -47,7 +47,7 @@ macOS版はGUIアプリケーションの提供もございます。([mtgto](htt
 ## 使い方
 
 ```sh
-azoo-key-skkserv [--port <port-number>] [--incoming-charset <charset>] [--help] [--version]
+azoo-key-skkserv [--port <port-number>] [--incoming-charset <charset>] [--inference-limit <limit>] [--help] [--version]
 ```
 
 _EUC-JP範囲外の候補があるため `--outgoing-charset` オプションはなく、サーバーからは常にUTF-8で返します。_
