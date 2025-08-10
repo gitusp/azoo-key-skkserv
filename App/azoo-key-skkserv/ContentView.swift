@@ -9,6 +9,7 @@ struct ContentView: View {
     @AppStorage("port") var port: Int = 1178
     @AppStorage("incomingCharset") var incomingCharset: IncomingCharset = .utf8
     @AppStorage("startServerAtLaunch") var startServerAtLaunch: Bool = false
+    @AppStorage("inferenceLimit") var inferenceLimit: Int = 3
     @State var running: Bool = false
     @State var serverTask: Task<Void, Error>? = nil
     @State var showingAlert: Bool = false
@@ -28,6 +29,8 @@ struct ContentView: View {
                 TextField("Host", text: $host, prompt: Text("127.0.0.1"))
                     .disabled(running)
                 TextField("Port", value: $port, formatter: formatter, prompt: Text("1178"))
+                    .disabled(running)
+                TextField("Inference Limit", value: $inferenceLimit, formatter: formatter, prompt: Text("1"))
                     .disabled(running)
                 Picker("Incoming Charset", selection: $incomingCharset) {
                     ForEach(IncomingCharset.allCases, id: \.self) { charset in
@@ -68,7 +71,7 @@ struct ContentView: View {
                     server = SKKServer(version: version, logger: logger)
                     server?.prepare()
                 }
-                try await server!.run(host: host, port: port, incomingCharset: incomingCharset.stringEncoding)
+                try await server!.run(host: host, port: port, incomingCharset: incomingCharset.stringEncoding, inferenceLimit: inferenceLimit)
             } catch is CancellationError {
                 // キャンセルが正常に完了した
                 logger.notice("Server task was cancelled.")
@@ -86,5 +89,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .frame(width: 320, height: 180)
+        .frame(width: 320, height: 220)
 }

@@ -20,6 +20,9 @@ struct AzooKeySkkserv: ParsableCommand {
     @Option(help: "The expected incoming character set.")
     var incomingCharset: IncomingCharset = .utf8
 
+    @Option(help: "Maximum number of inferences for AI-based conversion.")
+    var inferenceLimit: Int = 3
+
     func run() throws {
         Task {
             do {
@@ -56,5 +59,5 @@ enum IncomingCharset: String, ExpressibleByArgument, CaseIterable {
 func runServer(context: AzooKeySkkserv) async throws {
     let server = await SKKServer(version: version, logger: logger)
     await server.prepare()
-    try await server.run(host: "127.0.0.1", port: context.port, incomingCharset: context.incomingCharset.stringEncoding)
+    try await server.run(host: "127.0.0.1", port: context.port, incomingCharset: context.incomingCharset.stringEncoding, inferenceLimit: context.inferenceLimit)
 }

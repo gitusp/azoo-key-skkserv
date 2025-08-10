@@ -13,7 +13,7 @@ struct azoo_key_skkservApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(width: 320, height: 180)
+                .frame(width: 320, height: 220)
         }
         .windowResizability(.contentSize)
     }
