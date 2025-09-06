@@ -44,7 +44,6 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
     public init(version: String, logger: Logger) {
         self.version = version
         self.logger = logger
-        let convertOption = createConvertOption(inferenceLimit: 1, version: version)
         // コンバータ初期化
         converter = KanaKanjiConverter.withDefaultDictionary()
     }
