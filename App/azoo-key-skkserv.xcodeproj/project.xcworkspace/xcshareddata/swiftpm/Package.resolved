@@ -6,7 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/azooKey/AzooKeyKanaKanjiConverter",
       "state" : {
-        "revision" : "2cde22d3e2dd67244f7b095e092f23892dd4d566"
+        "revision" : "75c7c2b9c517610d27be23ac47b0a54ccb4de76d",
+        "version" : "0.11.1"
       }
     },
     {
@@ -95,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ensan-hcl/swift-tokenizers",
       "state" : {
-        "branch" : "feat/minimum",
-        "revision" : "407e51806c0c3354a9045f23859ed1704114e514"
+        "revision" : "4a606f66e0cc4d7d9f0197649e812f7fc86a4c34",
+        "version" : "0.0.1"
       }
     },
     {
@@ -104,7 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ensan-hcl/SwiftyMarisa",
       "state" : {
-        "revision" : "6e145aef5583aac96dd7ff8f9fbb9944d893128e"
+        "revision" : "91acc3cb0e747e0bd4b0e0813d42fb273d10e62f",
+        "version" : "0.0.1"
       }
     }
   ],

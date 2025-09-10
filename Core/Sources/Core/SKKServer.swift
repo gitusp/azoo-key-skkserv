@@ -16,7 +16,7 @@ private func createZenzaiMode(inferenceLimit: Int) -> ConvertRequestOptions.Zenz
 }
 
 private func createConvertOption(inferenceLimit: Int, version: String) -> ConvertRequestOptions {
-    return ConvertRequestOptions.withDefaultDictionary(
+    return ConvertRequestOptions(
         // 日本語予測変換
         requireJapanesePrediction: false,
         // 英語予測変換
@@ -28,6 +28,8 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
         // TODO: 扱いについて検討
         memoryDirectoryURL: URL(fileURLWithPath: ""),
         sharedContainerURL: URL(fileURLWithPath: ""),
+        textReplacer: .withDefaultEmojiDictionary(),
+        specialCandidateProviders: KanaKanjiConverter.defaultSpecialCandidateProviders,
         zenzaiMode: createZenzaiMode(inferenceLimit: inferenceLimit),
         metadata: .init(versionString: version)
     )
@@ -42,9 +44,8 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
     public init(version: String, logger: Logger) {
         self.version = version
         self.logger = logger
-        let convertOption = createConvertOption(inferenceLimit: 1, version: version)
         // コンバータ初期化
-        converter = KanaKanjiConverter(dicdataStore: DicdataStore(convertRequestOptions: convertOption))
+        converter = KanaKanjiConverter.withDefaultDictionary()
     }
 
     public func prepare() {
@@ -135,7 +136,7 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
                             : "1/"
                             + results.mainResults
                             // 読み全文に対応するもの以外・読みと完全一致するものは除去
-                                .filter({ result in result.correspondingCount == yomi.count && result.text != yomi })
+                                .filter({ result in result.rubyCount == yomi.count && result.text != yomi })
                                 .map({ result in result.text })
                                 .joined(by: "/")
                             + "/\n"

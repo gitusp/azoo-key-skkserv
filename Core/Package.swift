@@ -16,7 +16,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/azooKey/AzooKeyKanaKanjiConverter", revision: "2cde22d3e2dd67244f7b095e092f23892dd4d566", traits: ["Zenzai"]),
+        .package(url: "https://github.com/azooKey/AzooKeyKanaKanjiConverter", from: "0.11.1", traits: ["Zenzai"]),
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
     ],
