@@ -131,12 +131,15 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
                             var composingText = ComposingText()
                             composingText.insertAtCursorPosition(yomi, inputStyle: .direct)
                             let results = converter.requestCandidates(composingText, options: convertOption)
+                            let excludeTexts = yomi.applyingTransform(.hiraganaToKatakana, reverse: false)
+                                .map { katakana in katakana != yomi ? Set([yomi, katakana]) : Set([yomi]) }
+                                ?? Set([yomi])
                             let content = results.mainResults.count == 0
                             ? "4\n"
                             : "1/"
                             + results.mainResults
-                            // 読み全文に対応するもの以外・読みと完全一致するものは除去
-                                .filter({ result in result.rubyCount == yomi.count && result.text != yomi })
+                            // 読み全文に対応するもの以外・読みと完全一致するもの・読みのカタカナ版と一致するものは除去
+                                .filter({ result in result.rubyCount == yomi.count && !excludeTexts.contains(result.text) })
                                 .map({ result in result.text })
                                 .joined(by: "/")
                             + "/\n"
