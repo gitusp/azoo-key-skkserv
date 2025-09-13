@@ -15,6 +15,9 @@ DIST_DIR := dist
 ARCHIVE_PATH := $(BUILD_DIR)/$(PROJECT_NAME).xcarchive
 APP_NAME := azooKey skkserv.app
 APP_PATH := $(BUILD_DIR)/$(APP_NAME)
+DMG_TEMP_DIR := $(BUILD_DIR)/dmg-temp
+DMG_NAME := $(PROJECT_NAME)-$(VERSION).dmg
+DMG_PATH := $(DIST_DIR)/$(DMG_NAME)
 PKG_ROOT_DIR := $(BUILD_DIR)/pkg-root
 PKG_COMPONENT := $(BUILD_DIR)/$(PROJECT_NAME)-component.pkg
 PKG_COMPONENT_ID := io.github.gitusp.azoo-key-skkserv.app
@@ -24,7 +27,7 @@ PKG_PATH := $(DIST_DIR)/$(PKG_NAME)
 EXPORT_OPTIONS_PLIST := $(BUILD_DIR)/ExportOptions.plist
 DISTRIBUTION_PLIST := $(BUILD_DIR)/Distribution.plist
 
-all: $(PKG_PATH)
+all: $(DMG_PATH)
 
 clean:
 	@echo "Cleaning build artifacts..."
@@ -65,6 +68,18 @@ $(ARCHIVE_PATH):
 $(APP_PATH): $(ARCHIVE_PATH) $(EXPORT_OPTIONS_PLIST)
 	@echo "Exporting $(APP_NAME)..."
 	xcodebuild -exportArchive -archivePath $< -exportPath $(BUILD_DIR) -exportOptionsPlist $(EXPORT_OPTIONS_PLIST)
+
+# Prepare DMG contents
+$(DMG_TEMP_DIR): $(APP_PATH)
+	@echo "Preparing DMG contents..."
+	mkdir -p $@
+	cp -R "$(APP_PATH)" $@/
+	ln -s /Applications $@/Applications
+
+# Create DMG
+$(DMG_PATH): $(DMG_TEMP_DIR) $(DIST_DIR)
+	@echo "Creating $(DMG_NAME)..."
+	hdiutil create -volname "azooKey skkserv $(VERSION)" -srcfolder $< -format ULFO -ov $@
 
 # Create Distribution.plist for productbuild
 $(DISTRIBUTION_PLIST):
@@ -120,12 +135,21 @@ $(PKG_PATH): $(PKG_COMPONENT) $(DISTRIBUTION_PLIST) $(DIST_DIR)
 	@echo "Signing package with productsign..."
 	productsign --sign "Developer ID Installer" $(BUILD_DIR)/$(PROJECT_NAME)-unsigned.pkg $@
 
-# Notarize PKG
+# Notarize DMG
 notarize:
+	@echo "Submitting $(DMG_NAME) for notarization..."
+	xcrun notarytool submit $(DMG_PATH) --apple-id $(APPLE_ID) --password $(APPLE_APP_PASSWORD) --team-id $(TEAM_ID) --wait
+
+# Notarize PKG
+notarize_pkg:
 	@echo "Submitting $(PKG_NAME) for notarization..."
 	xcrun notarytool submit $(PKG_PATH) --apple-id $(APPLE_ID) --password $(APPLE_APP_PASSWORD) --team-id $(TEAM_ID) --wait
 
 # Staple notarization ticket
 staple:
+	@echo "Stapling notarization ticket to $(DMG_NAME)..."
+	xcrun stapler staple $(DMG_PATH)
+
+staple_pkg:
 	@echo "Stapling notarization ticket to $(PKG_NAME)..."
 	xcrun stapler staple $(PKG_PATH)
