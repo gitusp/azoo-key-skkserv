@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/614f87b9-062a-4710-92e2-f275eb80703f
 [Releases](https://github.com/gitusp/azoo-key-skkserv/releases)よりご自身のarchに対応したパッケージをダウンロードしてください。  
 その後、解凍されたパッケージをお好きなところに配置してください。
 
-パッケージ内の `azoo-key-skkserv` が実行ファイルです。
+macOSは `azooKey skkserv.app` 、それ以外のarchはパッケージ内の `azoo-key-skkserv` が実行ファイルです。
 
 ### ダイナミックライブラリについて
 
@@ -42,7 +42,9 @@ apt install libgomp1
 ### GUIについて
 
 macOS版はGUIアプリケーションの提供もございます。([mtgto](https://github.com/mtgto)さんありがとうございます！)  
-[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)に `.pkg` ファイルも置いてあるので、そちらからインストールしてください。
+[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)に `.dmg` ファイルも置いてあるので、そちらからインストールしてください。
+
+macSKKから使用する場合にはIncoming CharsetにEUC-JP、macSKKの応答エンコーディングにUTF-8を指定してください。
 
 ## 使い方
 
@@ -78,7 +80,7 @@ skkservの標準に準拠しているつもりです。
 ## 開発
 
 ```sh
-swift run azoo-key-skkserve
+swift run azoo-key-skkserv
 ```
 
 ## 動作検証環境
@@ -111,10 +113,8 @@ macOS上で動作するDockerにて、netcatで動作確認
 - [x] linux向けビルド
 - [x] コマンドラインオプション
 - [ ] homebrewでバイナリ配布など
-- [ ] ネットワークサンドボックス
-    - 見出し語の入力がどこにも送信されないことを保証したい
-    - SKKにはTCPで通信できる必要がある。リモートへの通信のみ制限することができるのか？
-    - 詳しい方いたら教えてください🙏
+- [x] ネットワークサンドボックス
+    - macOS GUI版はmacOS App SandboxでNetwork Clientを制限しています
     - [ ] そもそもコンポーネント分けてもいいかもしれない
         - skkservのゲートウェイを作ってかませる
         - ゲートウェイと各辞書エンジンの通信形式は自由
