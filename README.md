@@ -25,12 +25,21 @@ https://github.com/user-attachments/assets/614f87b9-062a-4710-92e2-f275eb80703f
 
 ## インストール
 
-[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)よりご自身のarchに対応したパッケージをダウンロードしてください。  
-その後、解凍されたパッケージをお好きなところに配置してください。
+### macOS
 
-macOSは `azooKey skkserv.app` 、それ以外のarchはパッケージ内の `azoo-key-skkserv` が実行ファイルです。
+macOS版はGUIアプリケーションを配布しています。([mtgto](https://github.com/mtgto)さんありがとうございます！)  
+[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)に `.dmg` ファイルが置いてあるので、そちらからインストールしてください。  
+CLI版も配布しているので、お好みでお使いください。(GUI版の方がmacOS App Sandboxが設定されているので、より安全です。)
 
-### ダイナミックライブラリについて
+macSKKから使用する場合にはIncoming CharsetにEUC-JP、macSKKの応答エンコーディングにUTF-8を指定してください。
+
+### Linux
+
+Linux版はCLI版の配布のみです。  
+[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)よりご自身のarchに対応したパッケージをダウンロードし、お好きなところに配置してください。  
+パッケージ内の `azoo-key-skkserv` が実行ファイルです。
+
+#### ダイナミックライブラリについて
 
 こちらのLinux検証環境だと `libgomp.so.1` が見つからないエラーが出ました。  
 もし見つからない場合は、以下のようなコマンドでインストールお願いします。
@@ -38,13 +47,6 @@ macOSは `azooKey skkserv.app` 、それ以外のarchはパッケージ内の `a
 ```sh
 apt install libgomp1
 ```
-
-### GUIについて
-
-macOS版はGUIアプリケーションの提供もございます。([mtgto](https://github.com/mtgto)さんありがとうございます！)  
-[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)に `.dmg` ファイルも置いてあるので、そちらからインストールしてください。
-
-macSKKから使用する場合にはIncoming CharsetにEUC-JP、macSKKの応答エンコーディングにUTF-8を指定してください。
 
 ## 使い方
 
@@ -56,13 +58,12 @@ _EUC-JP範囲外の候補があるため `--outgoing-charset` オプションは
 
 ### バックグラウンド実行
 
-私はmacOSのAutomatorで以下のshellを実行するアプリケーションを作成しています。
+macOSであれば、ログイン項目にGUI版のアプリケーションを登録しておくのが楽です。  
+そうでなければ、以下のようなコマンドがログイン時に実行されるようにしてください。
 
 ```sh
 nohup ~/opt/azoo-key-skkserv/azoo-key-skkserv --incoming-charset EUC-JP >&/dev/null &
 ```
-
-作成したアプリケーションはログイン項目に登録しておき、自動的にサーバーが立ち上がるようにしています。
 
 ## 仕様
 
