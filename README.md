@@ -1,5 +1,9 @@
-azoo-key-skkserv
-===
+<div align="center">
+    <img src="./App/azoo-key-skkserv/Assets.xcassets/AppIcon.appiconset/Icon-512.png" width="150" height="150">
+    <h1>
+        azoo-key-skkserv        
+    </h1>
+</div>
 
 [AzooKeyKanaKanjiConverter](https://github.com/azooKey/AzooKeyKanaKanjiConverter)を変換に利用するskkservです。  
 AzooKeyKanaKanjiConverterから参照される、ニューラルかな漢字変換システム「Zenzai」で利用するモデルは[zenz-v1](https://huggingface.co/Miwa-Keita/zenz-v1)を利用させていただいています。
