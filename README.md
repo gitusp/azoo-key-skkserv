@@ -11,7 +11,7 @@ Linux環境向けのバイナリには[llama.cpp](https://github.com/ggml-org/ll
 
 ## azoo-key-skkservについて
 
-macOSで動作する、受け取った読みをAzooKeyKanaKanjiConverterで漢字変換し、候補を辞書として返すskkservです。  
+受け取った読みをAzooKeyKanaKanjiConverterで漢字変換し、候補を辞書として返すskkservです。  
 これにより例えば:
 
 - `配達業者` などそれぞれの熟語は辞書に入っているけれど、繋がったものは登録されていないケースでも候補を表示できます。
@@ -25,24 +25,28 @@ https://github.com/user-attachments/assets/614f87b9-062a-4710-92e2-f275eb80703f
 
 ## インストール
 
-[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)よりご自身のarchに対応したパッケージをダウンロードしてください。  
-その後、解凍されたパッケージをお好きなところに配置してください。
+### macOS
 
+macOS版はGUIアプリケーションを配布しています。([mtgto](https://github.com/mtgto)さんありがとうございます！)  
+[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)に `.dmg` ファイルが置いてあるので、そちらからインストールしてください。  
+CLI版も配布しているので、お好みでお使いください。(GUI版の方がmacOS App Sandboxが設定されているので、より安全です。)
+
+macSKKから使用する場合にはIncoming CharsetにEUC-JP、macSKKの応答エンコーディングにUTF-8を指定してください。
+
+### Linux
+
+Linux版はCLI版の配布のみです。  
+[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)よりご自身のarchに対応したパッケージをダウンロードし、お好きなところに配置してください。  
 パッケージ内の `azoo-key-skkserv` が実行ファイルです。
 
-### ダイナミックライブラリについて
+#### ダイナミックライブラリについて
 
 こちらのLinux検証環境だと `libgomp.so.1` が見つからないエラーが出ました。  
-もし見つからない場合は、以下のようなコマンドでインストールお願いします。
+もし見つからない場合は、以下のようなコマンドでインストールしてください。
 
 ```sh
 apt install libgomp1
 ```
-
-### GUIについて
-
-macOS版はGUIアプリケーションの提供もございます。([mtgto](https://github.com/mtgto)さんありがとうございます！)  
-[Releases](https://github.com/gitusp/azoo-key-skkserv/releases)に `.pkg` ファイルも置いてあるので、そちらからインストールしてください。
 
 ## 使い方
 
@@ -54,13 +58,12 @@ _EUC-JP範囲外の候補があるため `--outgoing-charset` オプションは
 
 ### バックグラウンド実行
 
-私はmacOSのAutomatorで以下のshellを実行するアプリケーションを作成しています。
+macOSであれば、ログイン項目にGUI版のアプリケーションを登録しておくのが楽です。  
+そうでなければ、以下のようなコマンドがログイン時に実行されるようにしてください。
 
 ```sh
 nohup ~/opt/azoo-key-skkserv/azoo-key-skkserv --incoming-charset EUC-JP >&/dev/null &
 ```
-
-作成したアプリケーションはログイン項目に登録しておき、自動的にサーバーが立ち上がるようにしています。
 
 ## 仕様
 
@@ -71,14 +74,14 @@ skkservの標準に準拠しているつもりです。
 |--------|----------|------------------|---------------------------------------------------|
 | 0      | なし     | コネクション破棄 | なし                                              |
 | 1      | 見出し語 | 辞書要求         | 候補がある時は `1/{候補1}/{候補2}/.../{候補n}/\n` |
-| 2      | なし     | サーバー情報要求 | `azoo-key-skkserve/{バージョン} `                 |
+| 2      | なし     | サーバー情報要求 | `azoo-key-skkserv/{バージョン} `                  |
 | 3      | なし     | ホスト情報要求   | `{ホスト名}/127.0.0.1:{ポート}/ `                 |
 | 4      | 見出し語 | 補完要求         | `4\n` (未実装)                                    |
 
 ## 開発
 
 ```sh
-swift run azoo-key-skkserve
+swift run azoo-key-skkserv
 ```
 
 ## 動作検証環境
@@ -103,21 +106,3 @@ macOS上で動作するDockerにて、netcatで動作確認
 
 まだまだ使いながら調整したりしてる段階なので、不具合や不安定なところがあるかと思います。  
 もし何かございましたら、Issueでご報告いただいたりPRを投げていただけると大変助かります🙇
-
-## やりたいこと等
-
-- [x] PoC
-- [x] Zenzaiの導入
-- [x] linux向けビルド
-- [x] コマンドラインオプション
-- [ ] homebrewでバイナリ配布など
-- [ ] ネットワークサンドボックス
-    - 見出し語の入力がどこにも送信されないことを保証したい
-    - SKKにはTCPで通信できる必要がある。リモートへの通信のみ制限することができるのか？
-    - 詳しい方いたら教えてください🙏
-    - [ ] そもそもコンポーネント分けてもいいかもしれない
-        - skkservのゲートウェイを作ってかませる
-        - ゲートウェイと各辞書エンジンの通信形式は自由
-            - ここでtcp使わなければ、sandbox化も楽そう
-        - 別でprogrammableなエンジンとかを用意しても良さそう
-            - もしくはgateway自体がprogrammableで、通信もその一部という考え方もありそう
