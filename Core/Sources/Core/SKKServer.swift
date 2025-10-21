@@ -15,10 +15,10 @@ private func createZenzaiMode(inferenceLimit: Int) -> ConvertRequestOptions.Zenz
     )
 }
 
-private func createConvertOption(inferenceLimit: Int, version: String) -> ConvertRequestOptions {
+private func createConvertOption(inferenceLimit: Int, version: String, requireJapanesePrediction: Bool = false) -> ConvertRequestOptions {
     return ConvertRequestOptions(
         // 日本語予測変換
-        requireJapanesePrediction: false,
+        requireJapanesePrediction: requireJapanesePrediction,
         // 英語予測変換
         requireEnglishPrediction: false,
         // 入力言語
@@ -33,6 +33,11 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
         zenzaiMode: createZenzaiMode(inferenceLimit: inferenceLimit),
         metadata: .init(versionString: version)
     )
+}
+
+private func sanitizeYomi(yomi: String) -> String {
+    return yomi.trimmingCharacters(in: .whitespacesAndNewlines)
+        .replacing(/([ぁ-ん])[a-z]$/) { matches in matches.1 }
 }
 
 @MainActor public struct SKKServer {
@@ -78,7 +83,8 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
       */
     public func run(host: String = "127.0.0.1", port: Int = 1178, incomingCharset: String.Encoding = .utf8, inferenceLimit: Int = 1) async throws {
         let convertOption = createConvertOption(inferenceLimit: inferenceLimit, version: version)
-        
+        let predictionOption = createConvertOption(inferenceLimit: inferenceLimit, version: version, requireJapanesePrediction: true)
+
         // こちらのガイドを参考に実装した。
         // https://swiftonserver.com/using-swiftnio-channels/
         let server = try await ServerBootstrap(group: NIOSingletons.posixEventLoopGroup)
@@ -103,14 +109,14 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
             try await server.executeThenClose { clients in
                 for try await client in clients {
                     group.addTask {
-                        await handleClient(client: client, host: host, port: port, incomingCharset: incomingCharset, convertOption: convertOption)
+                        await handleClient(client: client, host: host, port: port, incomingCharset: incomingCharset, convertOption: convertOption, predictionOption: predictionOption)
                     }
                 }
             }
         }
     }
 
-    func handleClient(client: NIOAsyncChannel<ByteBuffer, ByteBuffer>, host: String, port: Int, incomingCharset: String.Encoding, convertOption: ConvertRequestOptions) async {
+    func handleClient(client: NIOAsyncChannel<ByteBuffer, ByteBuffer>, host: String, port: Int, incomingCharset: String.Encoding, convertOption: ConvertRequestOptions, predictionOption: ConvertRequestOptions) async {
         // クライアントが先にソケットを閉じている状態でソケットへの書き込みを行ったりすると例外が発生し、
         // そのあとの接続でinboundMessagesからメッセージが取得できなくなってしまう。
         // それを防ぐため例外をキャッチする必要がある。
@@ -125,23 +131,20 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
                         case "0":
                             return
                         case "1":
-                            let yomi = String(message.suffix(message.count - 1))
-                                .trimmingCharacters(in: .whitespacesAndNewlines)
-                                .replacing(/([ぁ-ん])[a-z]$/) { matches in matches.1 }
+                            let yomi = sanitizeYomi(yomi: String(message.suffix(message.count - 1)))
                             var composingText = ComposingText()
                             composingText.insertAtCursorPosition(yomi, inputStyle: .direct)
                             let results = converter.requestCandidates(composingText, options: convertOption)
                             let excludeTexts = yomi.applyingTransform(.hiraganaToKatakana, reverse: false)
                                 .map { katakana in katakana != yomi ? Set([yomi, katakana]) : Set([yomi]) }
                                 ?? Set([yomi])
-                            let content = results.mainResults.count == 0
+                            let candidates = results.mainResults
+                                // 読み全文に対応するもの以外・読みと完全一致するもの・読みのカタカナ版と一致するものは除去
+                                .filter({ result in result.rubyCount == yomi.count && !excludeTexts.contains(result.text) })
+                            let content = candidates.count == 0
                             ? "4\n"
                             : "1/"
-                            + results.mainResults
-                            // 読み全文に対応するもの以外・読みと完全一致するもの・読みのカタカナ版と一致するものは除去
-                                .filter({ result in result.rubyCount == yomi.count && !excludeTexts.contains(result.text) })
-                                .map({ result in result.text })
-                                .joined(by: "/")
+                            + candidates.map({ result in result.text }).joined(by: "/")
                             + "/\n"
                             try await outbound.write(allocator.buffer(string: content))
                         case "2":
@@ -150,7 +153,19 @@ private func createConvertOption(inferenceLimit: Int, version: String) -> Conver
                             let hostname = Host.current().localizedName ?? ""
                             try await outbound.write(allocator.buffer(string: "\(hostname)/\(host):\(port) "))
                         case "4":
-                            try await outbound.write(allocator.buffer(string: "4\n" ))
+                            let yomi = sanitizeYomi(yomi: String(message.suffix(message.count - 1)))
+                            var composingText = ComposingText()
+                            composingText.insertAtCursorPosition(yomi, inputStyle: .direct)
+                            let results = converter.requestCandidates(composingText, options: predictionOption)
+                            let candidates = results.mainResults
+                                // 読み全文以下の文字長の候補は除外
+                                .filter({ result in result.rubyCount > yomi.count })
+                            let content = candidates.count == 0
+                            ? "4\n"
+                            : "1/"
+                            + candidates.map({ result in result.text }).joined(by: "/")
+                            + "/\n"
+                            try await outbound.write(allocator.buffer(string: content))
                         default:
                             logger.warning("Unsupported opcode: \(opcode)")
                             break
