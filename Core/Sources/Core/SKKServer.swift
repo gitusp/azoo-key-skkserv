@@ -160,10 +160,12 @@ private func sanitizeYomi(yomi: String) -> String {
                             let candidates = results.mainResults
                                 // 読み全文以下の文字長の候補は除外
                                 .filter({ result in result.rubyCount > yomi.count })
+                                // ひらがなに変換(できないものは除外)
+                                .compactMap({ result in result.data.map({ d in d.ruby }).joined().applyingTransform(.hiraganaToKatakana, reverse: true)})
                             let content = candidates.count == 0
                             ? "4\n"
                             : "1/"
-                            + candidates.map({ result in result.text }).joined(by: "/")
+                            + candidates.joined(by: "/")
                             + "/\n"
                             try await outbound.write(allocator.buffer(string: content))
                         default:
