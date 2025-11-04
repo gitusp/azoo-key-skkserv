@@ -158,8 +158,8 @@ private func sanitizeYomi(yomi: String) -> String {
                             composingText.insertAtCursorPosition(yomi, inputStyle: .direct)
                             let results = converter.requestCandidates(composingText, options: predictionOption)
                             let candidates = results.mainResults
-                                // 読み全文以下の文字長の候補は除外
-                                .filter({ result in result.rubyCount > yomi.count })
+                                // 読み全文以下の文字長の候補・result.dataが複数の候補は除外
+                                .filter({ result in result.data.count == 1 && result.rubyCount > yomi.count })
                                 // ひらがなに変換(できないものは除外)
                                 .compactMap({ result in result.data.map({ d in d.ruby }).joined().applyingTransform(.hiraganaToKatakana, reverse: true)})
                             let content = candidates.count == 0
