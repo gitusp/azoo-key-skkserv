@@ -157,13 +157,18 @@ private func sanitizeYomi(yomi: String) -> String {
                             var composingText = ComposingText()
                             composingText.insertAtCursorPosition(yomi, inputStyle: .direct)
                             let results = converter.requestCandidates(composingText, options: predictionOption)
+                            var seen = Set<String>()
                             let candidates = results.mainResults
-                                // 読み全文以下の文字長の候補は除外
-                                .filter({ result in result.rubyCount > yomi.count })
+                                // 読み全文以下の文字長の候補・result.dataが複数の候補は除外
+                                .filter({ result in result.data.count == 1 && result.rubyCount > yomi.count })
+                                // ひらがなに変換(できないものは除外)
+                                .compactMap({ result in result.data.map({ d in d.ruby }).joined().applyingTransform(.hiraganaToKatakana, reverse: true)})
+                                // 重複を除去(最初の出現を保持)
+                                .filter({ seen.insert($0).inserted })
                             let content = candidates.count == 0
                             ? "4\n"
                             : "1/"
-                            + candidates.map({ result in result.text }).joined(by: "/")
+                            + candidates.joined(by: "/")
                             + "/\n"
                             try await outbound.write(allocator.buffer(string: content))
                         default:
