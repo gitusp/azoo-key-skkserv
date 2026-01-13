@@ -6,7 +6,7 @@ import Logging
 LoggingSystem.bootstrap(StreamLogHandler.standardError)
 let logger = Logger(label: "io.github.gitusp.azoo-key-skkserv")
 
-let version = "0.3.0"
+let version = "0.4.0"
 
 struct AzooKeySkkserv: ParsableCommand {
     static let configuration = CommandConfiguration(
